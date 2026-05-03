@@ -200,13 +200,12 @@ export default function SpktrCanvas() {
     ctxRef.current = ctx;
 
     const resize = () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (w === 0 || h === 0) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = window.innerWidth;
-      const h = window.innerHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingQuality = "high";
       const idx = Math.max(0, currentFrameRef.current);
@@ -214,8 +213,13 @@ export default function SpktrCanvas() {
     };
 
     resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    return () => {
+      window.removeEventListener("resize", resize);
+      ro.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -274,38 +278,58 @@ export default function SpktrCanvas() {
         className="relative"
         style={{ height: "600vh" }}
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
+        <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden bg-[#050505] md:block">
+          {/* Mobile top bar — sits above the canvas */}
+          <div className="flex shrink-0 items-center justify-between px-5 py-3 md:hidden">
+            <div className="eyebrow flex items-center gap-2 text-white/75">
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full"
+                style={{
+                  backgroundColor: "#00FFFF",
+                  boxShadow: "0 0 8px #00FFFF",
+                }}
+              />
+              SPKTR
+            </div>
+            <div className="meta text-white/55">v.01 — 2026</div>
+          </div>
+
           <motion.div
-            className="absolute inset-0"
-            style={{ x: shakeX, y: shakeY, scale }}
+            className="relative w-full shrink-0 overflow-hidden md:absolute md:inset-0 md:aspect-auto"
+            style={{
+              aspectRatio: "16 / 9",
+              x: shakeX,
+              y: shakeY,
+              scale,
+            }}
           >
             <canvas
               ref={canvasRef}
               className="absolute inset-0 h-full w-full"
               aria-hidden="true"
             />
+
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)",
+              }}
+            />
+
+            <div aria-hidden className="layer-scanlines" />
+            <div aria-hidden className="layer-grain" />
+
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-20"
+              style={{ backgroundColor: "#00FFFF", opacity: flashOpacity }}
+            />
           </motion.div>
 
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)",
-            }}
-          />
-
-          <div aria-hidden className="layer-scanlines" />
-          <div aria-hidden className="layer-grain" />
-
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-20"
-            style={{ backgroundColor: "#00FFFF", opacity: flashOpacity }}
-          />
-
-          {/* LEFT RAIL */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-30 flex w-[16vw] min-w-[148px] max-w-[260px] flex-col justify-between p-6 md:p-10">
+          {/* LEFT RAIL — desktop only */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-30 hidden w-[16vw] min-w-[148px] max-w-[260px] flex-col justify-between p-6 md:flex md:p-10">
             <div>
               <div className="eyebrow flex items-center gap-2 text-white/75">
                 <span
@@ -413,8 +437,8 @@ export default function SpktrCanvas() {
             </div>
           </div>
 
-          {/* RIGHT RAIL */}
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-30 flex w-[16vw] min-w-[148px] max-w-[260px] flex-col justify-between p-6 text-right md:p-10">
+          {/* RIGHT RAIL — desktop only */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-30 hidden w-[16vw] min-w-[148px] max-w-[260px] flex-col justify-between p-6 text-right md:flex md:p-10">
             <div>
               <div className="meta text-white/55">v.01 — 2026</div>
               <div className="meta mt-1.5 text-[9px] text-white/25">
@@ -471,6 +495,73 @@ export default function SpktrCanvas() {
                 <span className="text-white/45">04</span>
               </div>
               <div className="meta mt-2 text-[9px] text-white/30">PHASE</div>
+            </div>
+          </div>
+
+          {/* MOBILE — beat content fills the space below the canvas */}
+          <div className="flex flex-1 flex-col gap-4 px-5 pb-5 pt-5 md:hidden">
+            <div className="relative flex flex-1 items-center justify-center text-center">
+              <motion.div
+                style={{ opacity: beatA }}
+                className="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <div className="eyebrow" style={{ color: "#00FFFF" }}>
+                  PHASE 01 — GUARDIAN
+                </div>
+                <div className="tracking-tightest mt-3 max-w-xs text-[14px] font-medium leading-[1.3] text-white/90">
+                  Proactive Context. Local-First Intelligence.
+                </div>
+              </motion.div>
+
+              <motion.div
+                style={{ opacity: beatB }}
+                className="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <div className="eyebrow" style={{ color: "#00FFFF" }}>
+                  PHASE 02 — DECOMPRESSION
+                </div>
+                <div className="tracking-tightest mt-3 max-w-xs text-[14px] font-medium leading-[1.3] text-white/90">
+                  Deconstructed. Analyzing every screen pixel.
+                </div>
+              </motion.div>
+
+              <motion.div
+                style={{ opacity: beatC }}
+                className="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <div className="eyebrow" style={{ color: "#00FFFF" }}>
+                  PHASE 03 — RE-ASSEMBLY
+                </div>
+                <div className="tracking-tightest mt-3 max-w-xs text-[14px] font-medium leading-[1.3] text-white/90">
+                  Surface 3 HUD. Context Memory mapped to your workflow.
+                </div>
+              </motion.div>
+            </div>
+
+            <div className="meta flex items-baseline justify-between text-white/45">
+              <span>
+                SCROLL{" "}
+                <motion.span style={{ color: "#00FFFF" }}>
+                  {scrollPct}
+                </motion.span>
+              </span>
+              <span>
+                <motion.span style={{ color: "#00FFFF" }}>
+                  {phaseLabel}
+                </motion.span>
+                <span className="mx-1 text-white/20">/</span>
+                <span className="text-white/55">04</span>
+              </span>
+            </div>
+
+            <div className="relative h-px w-full overflow-hidden bg-white/10">
+              <motion.div
+                className="absolute inset-y-0 left-0 h-full"
+                style={{
+                  width: railProgressWidth,
+                  backgroundColor: "#00FFFF",
+                }}
+              />
             </div>
           </div>
         </div>

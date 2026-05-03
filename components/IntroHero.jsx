@@ -68,7 +68,7 @@ export default function IntroHero() {
             aria-hidden="true"
             className="fade-up block shrink-0 select-none"
             style={{
-              height: "clamp(120px, 22vw, 360px)",
+              height: "clamp(56px, 22vw, 360px)",
               width: "auto",
               marginTop: "clamp(6px, 1.1vw, 18px)",
               "--reveal-delay": "240ms",
@@ -78,7 +78,7 @@ export default function IntroHero() {
           <h1
             className="headline-display select-none lowercase text-white"
             style={{
-              fontSize: "clamp(120px, 22vw, 360px)",
+              fontSize: "clamp(56px, 22vw, 360px)",
               lineHeight: 0.85,
             }}
           >

@@ -180,14 +180,17 @@ export default function Page() {
 
 function FeatureCell({ tag, title, copy }) {
   return (
-    <div className="min-w-0 flex-1 basis-full bg-[#050505] p-5 text-left sm:basis-0 md:p-6">
-      <div className="meta text-[11px]" style={{ color: "#00FFFF" }}>
+    <div className="min-w-0 flex-1 basis-0 bg-[#050505] p-3 text-left md:p-6">
+      <div
+        className="meta text-[10px] md:text-[11px]"
+        style={{ color: "#00FFFF" }}
+      >
         {tag}
       </div>
-      <div className="font-mono mt-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-white">
+      <div className="font-mono mt-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-white md:mt-4 md:text-[11px] md:tracking-[0.32em]">
         {title}
       </div>
-      <p className="tracking-tightest mt-2 text-[12.5px] leading-[1.5] text-white/55">
+      <p className="tracking-tightest mt-2 hidden text-[12.5px] leading-[1.5] text-white/55 md:block">
         {copy}
       </p>
     </div>
